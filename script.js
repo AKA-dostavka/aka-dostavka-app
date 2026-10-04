@@ -8,6 +8,8 @@ if (window.Telegram && window.Telegram.WebApp) {
     }
 }
 
+let currentEditId = null;
+
 function showScreen(name) {
     document.querySelectorAll('.screen').forEach(function(s) {
         s.classList.remove('active');
@@ -25,11 +27,7 @@ function showScreen(name) {
 function getOrders() {
     const raw = localStorage.getItem('myOrders');
     if (!raw) return [];
-    try {
-        return JSON.parse(raw);
-    } catch (e) {
-        return [];
-    }
+    try { return JSON.parse(raw); } catch (e) { return []; }
 }
 
 function saveOrders(orders) {
@@ -42,7 +40,6 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// ===== ОДИНОЧНЫЙ ЗАКАЗ =====
 function sendOrder() {
     const address = document.getElementById('address').value.trim();
     const phone = document.getElementById('phone').value.trim();
@@ -57,11 +54,8 @@ function sendOrder() {
 
     const order = {
         id: Date.now(),
-        address: address,
-        phone: phone,
-        amount: amount,
-        comment: comment,
-        urgent: urgent,
+        address: address, phone: phone, amount: amount,
+        comment: comment, urgent: urgent,
         status: 'Новый',
         created: new Date().toLocaleString('ru-RU')
     };
@@ -80,17 +74,14 @@ function sendOrder() {
     }
 
     alert('✅ Заказ сохранён!');
-
     document.getElementById('address').value = '';
     document.getElementById('phone').value = '';
     document.getElementById('amount').value = '';
     document.getElementById('comment').value = '';
     document.getElementById('urgent').checked = false;
-
     showScreen('main');
 }
 
-// ===== ПАКЕТ ЗАКАЗОВ =====
 function parseBulkOrders(text) {
     const lines = text.split('\n');
     const parsed = [];
@@ -102,11 +93,7 @@ function parseBulkOrders(text) {
         const m = line.match(/^\s*Заказ\s+(\d+)\s*(.*?)\(\s*к оплате\s+([\d\s]+)\s*смн/i);
         if (m) {
             if (current) parsed.push(current);
-            current = {
-                amount: m[3].replace(/\s/g, ''),
-                lines: [],
-                prefix: (m[2] || '').trim()
-            };
+            current = { amount: m[3].replace(/\s/g, ''), lines: [], prefix: (m[2] || '').trim() };
             continue;
         }
         if (current) {
@@ -125,7 +112,6 @@ function parseBulkOrders(text) {
         const o = parsed[i];
         const full = o.lines.join(' ').trim();
         if (!full) continue;
-
         const combined = ((o.prefix || '') + ' ' + full).toLowerCase();
         let urgent = false;
         for (let k = 0; k < KEYWORDS.length; k++) {
@@ -134,14 +120,12 @@ function parseBulkOrders(text) {
         if (!urgent && /\b\d{1,2}[:.]\d{2}\b/.test(combined)) urgent = true;
 
         const pm = full.match(/\+?\d[\d\s]{8,}/);
-        let phone = '—';
-        let addr = full;
+        let phone = '—', addr = full;
         if (pm) {
             phone = pm[0].trim();
             addr = full.replace(phone, '').replace(/^[\s,;.]+|[\s,;.]+$/g, '');
         }
         if (!addr) addr = '—';
-
         result.push({ amount: o.amount, phone: phone, address: addr, urgent: urgent });
     }
     return result;
@@ -149,13 +133,9 @@ function parseBulkOrders(text) {
 
 function sendBatchOrders() {
     const text = document.getElementById('batch-text').value;
-    if (!text.trim()) {
-        alert('Вставьте текст с заказами');
-        return;
-    }
+    if (!text.trim()) { alert('Вставьте текст с заказами'); return; }
 
     const parsed = parseBulkOrders(text);
-
     if (parsed.length === 0) {
         alert('Не удалось найти заказы. Проверьте формат.');
         return;
@@ -166,12 +146,8 @@ function sendBatchOrders() {
         const o = parsed[i];
         orders.unshift({
             id: Date.now() + i,
-            address: o.address,
-            phone: o.phone,
-            amount: o.amount,
-            comment: '',
-            urgent: o.urgent,
-            status: 'Новый',
+            address: o.address, phone: o.phone, amount: o.amount,
+            comment: '', urgent: o.urgent, status: 'Новый',
             created: new Date().toLocaleString('ru-RU')
         });
     }
@@ -179,19 +155,15 @@ function sendBatchOrders() {
 
     if (window.Telegram && window.Telegram.WebApp) {
         try {
-            window.Telegram.WebApp.sendData(JSON.stringify({
-                bulk: parsed
-            }));
+            window.Telegram.WebApp.sendData(JSON.stringify({ bulk: parsed }));
         } catch (e) { console.log('sendData:', e.message); }
     }
 
     alert('✅ Создано заказов: ' + parsed.length);
-
     document.getElementById('batch-text').value = '';
     showScreen('main');
 }
 
-// ===== СПИСОК =====
 function renderOrders() {
     const container = document.getElementById('orders-list');
     if (!container) return;
@@ -215,9 +187,68 @@ function renderOrders() {
             html += '<div class="order-row">📝 ' + escapeHtml(o.comment) + '</div>';
         }
         html += '<div class="order-foot">' + escapeHtml(o.created) + ' • ' + escapeHtml(o.status) + '</div>';
+        html += '<div class="order-actions">';
+        html += '<button class="btn-edit" onclick="editOrder(' + o.id + ')">✏️ Изменить</button>';
+        html += '<button class="btn-cancel" onclick="cancelOrder(' + o.id + ')">❌ Отменить</button>';
+        html += '</div>';
         html += '</div>';
     }
     container.innerHTML = html;
+}
+
+function editOrder(id) {
+    const orders = getOrders();
+    const order = orders.find(function(o) { return o.id === id; });
+    if (!order) { alert('Заказ не найден'); return; }
+
+    currentEditId = id;
+    document.getElementById('edit-address').value = order.address || '';
+    document.getElementById('edit-phone').value = order.phone || '';
+    document.getElementById('edit-amount').value = order.amount || '';
+    document.getElementById('edit-comment').value = order.comment || '';
+    document.getElementById('edit-urgent').checked = !!order.urgent;
+    showScreen('edit');
+}
+
+function saveEdit() {
+    if (!currentEditId) return;
+
+    const address = document.getElementById('edit-address').value.trim();
+    const phone = document.getElementById('edit-phone').value.trim();
+    const amount = document.getElementById('edit-amount').value.trim();
+    const comment = document.getElementById('edit-comment').value.trim();
+    const urgent = document.getElementById('edit-urgent').checked;
+
+    if (!address || !phone || !amount) {
+        alert('Заполните адрес, телефон и сумму');
+        return;
+    }
+
+    const orders = getOrders();
+    for (let i = 0; i < orders.length; i++) {
+        if (orders[i].id === currentEditId) {
+            orders[i].address = address;
+            orders[i].phone = phone;
+            orders[i].amount = amount;
+            orders[i].comment = comment;
+            orders[i].urgent = urgent;
+            break;
+        }
+    }
+    saveOrders(orders);
+    currentEditId = null;
+    alert('✅ Заказ обновлён');
+    showScreen('orders');
+}
+
+function cancelOrder(id) {
+    if (!confirm('Отменить заказ? Это действие нельзя вернуть.')) return;
+
+    let orders = getOrders();
+    orders = orders.filter(function(o) { return o.id !== id; });
+    saveOrders(orders);
+    renderOrders();
+    alert('❌ Заказ отменён');
 }
 
 if ('serviceWorker' in navigator) {
@@ -226,4 +257,4 @@ if ('serviceWorker' in navigator) {
             .then(function(reg) { console.log('SW:', reg.scope); })
             .catch(function(err) { console.log('SW err:', err); });
     });
-            }
+}
