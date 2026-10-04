@@ -8,7 +8,6 @@
     <meta name="theme-color" content="#6B3FA0">
     <link rel="apple-touch-icon" href="/icon-192.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="АКА ДОСТАВКА">
     <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -28,6 +27,10 @@
                 <button class="menu-btn" onclick="showScreen('order')">
                     <span class="ico">⚡</span>
                     <span>Быстрый заказ</span>
+                </button>
+                <button class="menu-btn" onclick="showScreen('batch')">
+                    <span class="ico">📦</span>
+                    <span>Пакет заказов</span>
                 </button>
                 <button class="menu-btn" onclick="showScreen('orders')">
                     <span class="ico">📋</span>
@@ -63,6 +66,24 @@
                     🚀 Срочный заказ
                 </label>
                 <button class="btn" onclick="sendOrder()">Отправить заказ</button>
+            </div>
+        </div>
+
+        <div id="screen-batch" class="screen">
+            <div class="top-bar">
+                <button class="back" onclick="showScreen('main')">⬅</button>
+                <div class="title">Пакет заказов</div>
+            </div>
+            <div class="content">
+                <label>Вставьте текст с заказами</label>
+                <p class="hint">Формат:</p>
+                <pre class="example">Заказ 1 ( к оплате 200 смн )
+Адрес и номер: 900000000 ул. Рудаки 25
+
+Заказ 2 срочно ( к оплате 150 смн )
+Адрес и номер: 911111111 Айни 5</pre>
+                <textarea id="batch-text" rows="10" placeholder="Заказ 1 ( к оплате 200 смн )&#10;Адрес и номер: 900000000 ул. Рудаки 25&#10;&#10;Заказ 2 ( к оплате 150 смн )&#10;Адрес и номер: 911111111 Айни 5"></textarea>
+                <button class="btn" onclick="sendBatchOrders()">Отправить всё</button>
             </div>
         </div>
 
