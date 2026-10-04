@@ -1,33 +1,157 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
 body {
     font-family: -apple-system, sans-serif;
     background: linear-gradient(180deg, #6B3FA0 0%, #9B6FD0 100%);
     min-height: 100vh;
     color: white;
+}
+
+.screen { display: none; padding: 16px; min-height: 100vh; }
+.screen.active { display: block; }
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-top: 8px;
+}
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 800;
+}
+.logo { font-size: 28px; }
+.back {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    cursor: pointer;
+}
+.title { font-size: 20px; font-weight: 700; }
+
+.user-greet {
+    text-align: center;
+    font-size: 14px;
+    opacity: 0.95;
+    margin-bottom: 24px;
+}
+
+.menu { display: flex; flex-direction: column; gap: 12px; }
+.menu-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: white;
+    color: #6B3FA0;
+    border: none;
     padding: 20px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 16px;
+    text-align: left;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    cursor: pointer;
 }
-.header { text-align: center; margin-bottom: 30px; padding-top: 20px; }
-.logo { font-size: 48px; }
-h1 { font-size: 24px; font-weight: 800; margin-top: 8px; }
-.subtitle { font-size: 14px; opacity: 0.9; margin-top: 4px; }
-.card {
-    background: white; border-radius: 20px; padding: 24px;
-    color: #2D2D2D; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+.menu-btn:active { transform: scale(0.98); }
+.menu-btn .ico { font-size: 24px; }
+
+.content {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    color: #2D2D2D;
 }
-.card h2 { font-size: 18px; color: #6B3FA0; margin-bottom: 20px; }
+
 label {
-    display: block; font-size: 13px; font-weight: 600;
-    color: #6B3FA0; margin-bottom: 6px; margin-top: 14px;
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6B3FA0;
+    margin-bottom: 6px;
+    margin-top: 14px;
 }
+label:first-of-type { margin-top: 0; }
+
 input, textarea {
-    width: 100%; padding: 14px; border: 2px solid #EEE;
-    border-radius: 12px; font-size: 16px; background: #F8F6FC;
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #EEE;
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: inherit;
+    background: #F8F6FC;
 }
 input:focus, textarea:focus { outline: none; border-color: #6B3FA0; }
+
 .btn {
-    width: 100%; background: #6B3FA0; color: white; border: none;
-    padding: 18px; font-size: 17px; font-weight: 700;
-    border-radius: 12px; margin-top: 24px;
+    width: 100%;
+    background: #6B3FA0;
+    color: white;
+    border: none;
+    padding: 18px;
+    font-size: 17px;
+    font-weight: 700;
+    border-radius: 12px;
+    margin-top: 24px;
+    cursor: pointer;
 }
-.urgent { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
+.btn:active { transform: scale(0.98); }
+
+.urgent {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+}
 .urgent input { width: 20px; height: 20px; }
+
+.stub {
+    text-align: center;
+    padding: 40px 20px;
+}
+.stub-icon { font-size: 64px; margin-bottom: 20px; }
+.stub-text {
+    font-size: 17px;
+    font-weight: 600;
+    color: #6B3FA0;
+    margin-bottom: 10px;
+}
+.stub-hint {
+    font-size: 14px;
+    color: #888;
+    line-height: 1.5;
+}
+
+.order-card {
+    background: #F8F6FC;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-left: 4px solid #6B3FA0;
+}
+.order-head {
+    font-size: 15px;
+    font-weight: 700;
+    color: #2D2D2D;
+    margin-bottom: 8px;
+}
+.order-row {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 4px;
+}
+.order-foot {
+    font-size: 12px;
+    color: #999;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #EEE;
+}
