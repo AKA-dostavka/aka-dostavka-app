@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>АКА ДОСТАВКА</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🚚</div>
+        <h1>АКА ДОСТАВКА</h1>
+        <p class="subtitle">Служба доставки для магазинов</p>
+    </div>
+    <div class="card">
+        <h2>📦 Новый заказ</h2>
+        <label>📍 Адрес</label>
+        <input type="text" id="address" placeholder="ул. Рудаки 25">
+        <label>📞 Телефон</label>
+        <input type="tel" id="phone" placeholder="+992...">
+        <label>💰 Сумма</label>
+        <input type="number" id="amount" placeholder="150">
+        <label>📝 Комментарий</label>
+        <textarea id="comment" rows="2"></textarea>
+        <label class="urgent"><input type="checkbox" id="urgent"> 🚀 Срочный (+10)</label>
+        <button class="btn" onclick="sendOrder()">Отправить</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
