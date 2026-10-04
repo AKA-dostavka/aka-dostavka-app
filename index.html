@@ -91,12 +91,29 @@
             </div>
         </div>
 
-        <div id="screen-orders" class="screen">
-            <div class="top-bar">
-                <button class="back" onclick="showScreen('main')">⬅</button>
-                <div class="title">Мои заказы</div>
-            </div>
-            <div class="content" id="orders-list"></div>
+        <div id="screen-edit" class="screen">
+    <div class="top-bar">
+        <button class="back" onclick="showScreen('orders')">⬅</button>
+        <div class="title">Изменить заказ</div>
+    </div>
+    <div class="content">
+        <label>📍 Адрес доставки</label>
+        <input type="text" id="edit-address">
+        <label>📞 Телефон клиента</label>
+        <input type="tel" id="edit-phone">
+        <label>💰 Сумма заказа (смн)</label>
+        <input type="number" id="edit-amount">
+        <label>📝 Комментарий</label>
+        <textarea id="edit-comment" rows="2"></textarea>
+        <label class="urgent">
+            <input type="checkbox" id="edit-urgent">
+            <span class="urgent-text">
+                🚀 <b>СРОЧНО</b> — доставить как можно скорее
+            </span>
+            <span class="urgent-price">+10 смн</span>
+        </label>
+        <button class="btn" onclick="saveEdit()">Сохранить</button>
+    </div>
         </div>
 
         <div id="screen-report" class="screen">
