@@ -155,3 +155,19 @@ input:focus, textarea:focus { outline: none; border-color: #6B3FA0; }
     padding-top: 8px;
     border-top: 1px solid #EEE;
 }
+.hint {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 8px;
+}
+.example {
+    background: #F8F6FC;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 12px;
+    font-family: monospace;
+    color: #6B3FA0;
+    white-space: pre-wrap;
+    margin-bottom: 14px;
+    line-height: 1.4;
+}
