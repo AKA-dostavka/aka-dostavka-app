@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aka-delivery-v1';
+const CACHE_NAME = 'aka-delivery-v3';
 const URLS_TO_CACHE = [
     '/',
     '/index.html',
