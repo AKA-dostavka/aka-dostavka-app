@@ -20,9 +20,7 @@ function showScreen(name) {
         el.classList.add('active');
         window.scrollTo(0, 0);
     }
-    if (name === 'orders') {
-        renderOrders();
-    }
+    if (name === 'orders') renderOrders();
     updateOrdersCount();
 }
 
@@ -42,7 +40,7 @@ function updateOrdersCount() {
     if (!badge) return;
     const orders = getOrders();
     const active = orders.filter(function(o) {
-        return o.status !== 'Доставлен' && o.status !== 'Отменён';
+        return o.status !== 'Доставлен' && o.status !== 'Отменён' && o.status !== 'Возврат';
     }).length;
     badge.textContent = active > 0 ? active : '';
 }
@@ -62,7 +60,7 @@ function setFilter(f) {
     renderOrders();
 }
 
-// ===== СОЗДАНИЕ ЗАКАЗА =====
+// ===== СОЗДАНИЕ =====
 function sendOrder() {
     const address = document.getElementById('address').value.trim();
     const phone = document.getElementById('phone').value.trim();
@@ -158,12 +156,8 @@ function parseBulkOrders(text) {
 function sendBatchOrders() {
     const text = document.getElementById('batch-text').value;
     if (!text.trim()) { alert('Вставьте текст с заказами'); return; }
-
     const parsed = parseBulkOrders(text);
-    if (parsed.length === 0) {
-        alert('Не удалось найти заказы. Проверьте формат.');
-        return;
-    }
+    if (parsed.length === 0) { alert('Не удалось найти заказы. Проверьте формат.'); return; }
 
     const orders = getOrders();
     for (let i = 0; i < parsed.length; i++) {
@@ -178,23 +172,28 @@ function sendBatchOrders() {
     saveOrders(orders);
 
     if (window.Telegram && window.Telegram.WebApp) {
-        try {
-            window.Telegram.WebApp.sendData(JSON.stringify({ bulk: parsed }));
-        } catch (e) { console.log('sendData:', e.message); }
+        try { window.Telegram.WebApp.sendData(JSON.stringify({ bulk: parsed })); }
+        catch (e) { console.log('sendData:', e.message); }
     }
-
     alert('✅ Создано заказов: ' + parsed.length);
     document.getElementById('batch-text').value = '';
     showScreen('main');
 }
 
-// ===== СПИСОК =====
+// ===== СТАТУСЫ =====
 function statusBadge(status) {
     if (status === 'Новый') return '<span class="badge-status new">🟡 Новый</span>';
-    if (status === 'Принят') return '<span class="badge-status accepted">🔵 Принят</span>';
+    if (status === 'Назначен курьеру') return '<span class="badge-status accepted">🔵 Назначен курьеру</span>';
+    if (status === 'Курьер забрал') return '<span class="badge-status accepted">🟠 Курьер забрал</span>';
+    if (status === 'В пути') return '<span class="badge-status accepted">🚗 В пути</span>';
     if (status === 'Доставлен') return '<span class="badge-status done">🟢 Доставлен</span>';
+    if (status === 'Возврат') return '<span class="badge-status return">↩️ Возврат</span>';
     if (status === 'Отменён') return '<span class="badge-status cancelled">🔴 Отменён</span>';
     return '<span class="badge-status new">' + escapeHtml(status) + '</span>';
+}
+
+function canCancel(status) {
+    return status === 'Новый' || status === 'Назначен курьеру';
 }
 
 function renderOrders() {
@@ -206,7 +205,7 @@ function renderOrders() {
 
     if (currentFilter === 'new') {
         orders = all.filter(function(o) {
-            return o.status !== 'Доставлен' && o.status !== 'Отменён';
+            return o.status !== 'Доставлен' && o.status !== 'Отменён' && o.status !== 'Возврат';
         });
     } else if (currentFilter === 'done') {
         orders = all.filter(function(o) { return o.status === 'Доставлен'; });
@@ -224,6 +223,7 @@ function renderOrders() {
         let cls = 'order-card';
         if (o.status === 'Доставлен') cls += ' status-done';
         if (o.status === 'Отменён') cls += ' status-cancelled';
+        if (o.status === 'Возврат') cls += ' status-return';
 
         html += '<div class="' + cls + '">';
         html += '<div class="order-head">📍 ' + escapeHtml(o.address) + mark + '</div>';
@@ -236,16 +236,14 @@ function renderOrders() {
 
         // Кнопки действий
         html += '<div class="order-actions">';
-        if (o.status === 'Новый') {
-            html += '<button class="btn-edit" onclick="editOrder(' + o.id + ')">✏️ Изменить</button>';
-            html += '<button class="btn-accept" onclick="acceptOrder(' + o.id + ')">✅ Принять</button>';
+        html += '<button class="btn-edit" onclick="editOrder(' + o.id + ')">✏️ Изменить</button>';
+        if (canCancel(o.status)) {
             html += '<button class="btn-cancel" onclick="cancelOrder(' + o.id + ')">❌ Отменить</button>';
-        } else if (o.status === 'Принят') {
-            html += '<button class="btn-done" onclick="completeOrder(' + o.id + ')">✅ Доставлен</button>';
-            html += '<button class="btn-cancel" onclick="cancelOrder(' + o.id + ')">❌ Отменить</button>';
-        } else if (o.status === 'Доставлен') {
-            html += '<button class="btn-restore" onclick="restoreOrder(' + o.id + ')">🔄 Вернуть в работу</button>';
-        } else if (o.status === 'Отменён') {
+        }
+        if (o.status === 'Доставлен') {
+            html += '<button class="btn-return" onclick="returnOrder(' + o.id + ')">↩️ Возврат</button>';
+        }
+        if (o.status === 'Отменён' || o.status === 'Возврат') {
             html += '<button class="btn-restore" onclick="restoreOrder(' + o.id + ')">🔄 Восстановить</button>';
         }
         html += '</div>';
@@ -254,35 +252,33 @@ function renderOrders() {
     container.innerHTML = html;
 }
 
-// ===== СТАТУСЫ =====
-function updateStatus(id, newStatus) {
+function cancelOrder(id) {
+    if (!confirm('Отменить заказ? Курьер его не повезёт.')) return;
     const orders = getOrders();
     for (let i = 0; i < orders.length; i++) {
-        if (orders[i].id === id) {
-            orders[i].status = newStatus;
-            orders[i].updated = new Date().toLocaleString('ru-RU');
-            break;
-        }
+        if (orders[i].id === id) { orders[i].status = 'Отменён'; break; }
     }
     saveOrders(orders);
     renderOrders();
 }
 
-function acceptOrder(id) {
-    updateStatus(id, 'Принят');
-}
-
-function completeOrder(id) {
-    updateStatus(id, 'Доставлен');
+function returnOrder(id) {
+    if (!confirm('Оформить возврат? Заказ будет помечен как возвращённый.')) return;
+    const orders = getOrders();
+    for (let i = 0; i < orders.length; i++) {
+        if (orders[i].id === id) { orders[i].status = 'Возврат'; break; }
+    }
+    saveOrders(orders);
+    renderOrders();
 }
 
 function restoreOrder(id) {
-    updateStatus(id, 'Новый');
-}
-
-function cancelOrder(id) {
-    if (!confirm('Отменить заказ?')) return;
-    updateStatus(id, 'Отменён');
+    const orders = getOrders();
+    for (let i = 0; i < orders.length; i++) {
+        if (orders[i].id === id) { orders[i].status = 'Новый'; break; }
+    }
+    saveOrders(orders);
+    renderOrders();
 }
 
 // ===== РЕДАКТИРОВАНИЕ =====
@@ -302,7 +298,6 @@ function editOrder(id) {
 
 function saveEdit() {
     if (!currentEditId) return;
-
     const address = document.getElementById('edit-address').value.trim();
     const phone = document.getElementById('edit-phone').value.trim();
     const amount = document.getElementById('edit-amount').value.trim();
@@ -322,6 +317,7 @@ function saveEdit() {
             orders[i].amount = amount;
             orders[i].comment = comment;
             orders[i].urgent = urgent;
+            orders[i].edited = new Date().toLocaleString('ru-RU');
             break;
         }
     }
@@ -331,7 +327,7 @@ function saveEdit() {
     showScreen('orders');
 }
 
-// ===== ИНИЦИАЛИЗАЦИЯ =====
+// ===== СТАРТ =====
 updateOrdersCount();
 
 if ('serviceWorker' in navigator) {
