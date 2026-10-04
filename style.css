@@ -200,3 +200,15 @@ input:focus, textarea:focus { outline: none; border-color: #6B3FA0; }
     margin-bottom: 14px;
     line-height: 1.4;
 }
+.badge-urgent {
+    display: inline-block;
+    background: #FF6B00;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-left: 6px;
+    vertical-align: middle;
+    letter-spacing: 0.5px;
+}
