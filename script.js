@@ -44,3 +44,4 @@ function sendOrder() {
         alert('Откройте через Telegram');
     }
 }
+// v2
