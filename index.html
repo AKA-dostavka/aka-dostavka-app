@@ -5,33 +5,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>АКА ДОСТАВКА</title>
     <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#6B3FA0">
-<link rel="apple-touch-icon" href="/icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="АКА ДОСТАВКА">
-    <link rel="stylesheet" href="style.css"> 
+    <meta name="theme-color" content="#6B3FA0">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="АКА ДОСТАВКА">
+    <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <div id="user" style="text-align:center; color:white; font-size:14px; margin-bottom:16px;"></div>
-    <div class="header">
-        <div class="logo">🚚</div>
-        <h1>АКА ДОСТАВКА</h1>
-        <p class="subtitle">Служба доставки для магазинов</p>
-    </div>
-    <div class="card">
-        <h2>📦 Новый заказ</h2>
-        <label>📍 Адрес</label>
-        <input type="text" id="address" placeholder="ул. Рудаки 25">
-        <label>📞 Телефон</label>
-        <input type="tel" id="phone" placeholder="+992...">
-        <label>💰 Сумма</label>
-        <input type="number" id="amount" placeholder="150">
-        <label>📝 Комментарий</label>
-        <textarea id="comment" rows="2"></textarea>
-        <label class="urgent"><input type="checkbox" id="urgent"> 🚀 Срочный (+10)</label>
-        <button class="btn" onclick="sendOrder()">Отправить</button>
+    <div id="app">
+
+        <div id="screen-main" class="screen active">
+            <div class="top-bar">
+                <div class="brand">
+                    <span class="logo">🚚</span>
+                    <span>АКА ДОСТАВКА</span>
+                </div>
+            </div>
+            <div id="user" class="user-greet"></div>
+            <div class="menu">
+                <button class="menu-btn" onclick="showScreen('order')">
+                    <span class="ico">⚡</span>
+                    <span>Быстрый заказ</span>
+                </button>
+                <button class="menu-btn" onclick="showScreen('orders')">
+                    <span class="ico">📋</span>
+                    <span>Мои заказы</span>
+                </button>
+                <button class="menu-btn" onclick="showScreen('report')">
+                    <span class="ico">📊</span>
+                    <span>Отчёт магазина</span>
+                </button>
+                <button class="menu-btn" onclick="showScreen('contact')">
+                    <span class="ico">✉️</span>
+                    <span>Написать менеджеру</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="screen-order" class="screen">
+            <div class="top-bar">
+                <button class="back" onclick="showScreen('main')">⬅</button>
+                <div class="title">Новый заказ</div>
+            </div>
+            <div class="content">
+                <label>📍 Адрес доставки</label>
+                <input type="text" id="address" placeholder="ул. Рудаки 25">
+                <label>📞 Телефон клиента</label>
+                <input type="tel" id="phone" placeholder="+992...">
+                <label>💰 Сумма заказа (смн)</label>
+                <input type="number" id="amount" placeholder="150">
+                <label>📝 Комментарий</label>
+                <textarea id="comment" rows="2" placeholder="Позвонить за 5 минут"></textarea>
+                <label class="urgent">
+                    <input type="checkbox" id="urgent">
+                    🚀 Срочный заказ
+                </label>
+                <button class="btn" onclick="sendOrder()">Отправить заказ</button>
+            </div>
+        </div>
+
+        <div id="screen-orders" class="screen">
+            <div class="top-bar">
+                <button class="back" onclick="showScreen('main')">⬅</button>
+                <div class="title">Мои заказы</div>
+            </div>
+            <div class="content" id="orders-list"></div>
+        </div>
+
+        <div id="screen-report" class="screen">
+            <div class="top-bar">
+                <button class="back" onclick="showScreen('main')">⬅</button>
+                <div class="title">Отчёт магазина</div>
+            </div>
+            <div class="content">
+                <div class="stub">
+                    <div class="stub-icon">📊</div>
+                    <div class="stub-text">Отчёт пока доступен в боте</div>
+                    <div class="stub-hint">Нажмите «📊 Отчёт магазина» в боте вечером</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-contact" class="screen">
+            <div class="top-bar">
+                <button class="back" onclick="showScreen('main')">⬅</button>
+                <div class="title">Написать менеджеру</div>
+            </div>
+            <div class="content">
+                <div class="stub">
+                    <div class="stub-icon">✉️</div>
+                    <div class="stub-text">Связь с менеджером — через бота</div>
+                    <div class="stub-hint">Нажмите «✉️ Написать менеджеру» в боте</div>
+                </div>
+            </div>
+        </div>
+
     </div>
     <script src="script.js"></script>
 </body>
