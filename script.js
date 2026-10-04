@@ -1,3 +1,15 @@
+// Показываем имя пользователя из Telegram
+if (window.Telegram && window.Telegram.WebApp) {
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    const user = tg.initDataUnsafe?.user;
+    if (user) {
+        document.getElementById('user').textContent = 
+            '👋 Здравствуйте, ' + (user.first_name || 'друг') + '!';
+    }
+}
 function sendOrder() {
     const address = document.getElementById('address').value;
     const phone = document.getElementById('phone').value;
