@@ -108,10 +108,39 @@ input:focus, textarea:focus { outline: none; border-color: #6B3FA0; }
 .urgent {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 16px;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 16px;
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+    border: 2px dashed #FF6B00;
+    border-radius: 14px;
+    cursor: pointer;
 }
-.urgent input { width: 20px; height: 20px; }
+.urgent input {
+    width: 24px;
+    height: 24px;
+    accent-color: #FF6B00;
+    flex-shrink: 0;
+}
+.urgent-text {
+    flex: 1;
+    font-size: 14px;
+    color: #B34700;
+    line-height: 1.4;
+}
+.urgent-text b {
+    color: #FF6B00;
+    font-size: 15px;
+}
+.urgent-price {
+    background: #FF6B00;
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+}
 
 .stub {
     text-align: center;
