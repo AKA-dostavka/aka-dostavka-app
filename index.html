@@ -62,9 +62,13 @@
                 <label>📝 Комментарий</label>
                 <textarea id="comment" rows="2" placeholder="Позвонить за 5 минут"></textarea>
                 <label class="urgent">
-                    <input type="checkbox" id="urgent">
-                    🚀 Срочный заказ
-                </label>
+                    <label class="urgent">
+    <input type="checkbox" id="urgent">
+    <span class="urgent-text">
+        🚀 <b>СРОЧНО</b> — доставить как можно скорее
+    </span>
+    <span class="urgent-price">+10 смн</span>
+                    </label>
                 <button class="btn" onclick="sendOrder()">Отправить заказ</button>
             </div>
         </div>
