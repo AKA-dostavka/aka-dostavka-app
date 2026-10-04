@@ -206,7 +206,7 @@ function renderOrders() {
     let html = '';
     for (let i = 0; i < orders.length; i++) {
         const o = orders[i];
-        const mark = o.urgent ? ' 🚀' : '';
+        const mark = o.urgent ? ' <span class="badge-urgent">🚀 СРОЧНО</span>' : '';
         html += '<div class="order-card">';
         html += '<div class="order-head">📍 ' + escapeHtml(o.address) + mark + '</div>';
         html += '<div class="order-row">📞 ' + escapeHtml(o.phone) + '</div>';
