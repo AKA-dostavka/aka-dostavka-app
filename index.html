@@ -63,7 +63,10 @@
                 <textarea id="comment" rows="2" placeholder="Позвонить за 5 минут"></textarea>
                 <label class="urgent">
                     <input type="checkbox" id="urgent">
-                    <span class="urgent-text">🚀 <b>СРОЧНО</b> — доставить как можно скорее</span>
+                    <div class="urgent-info">
+                        <div class="urgent-title">🚀 СРОЧНО</div>
+                        <div class="urgent-sub">доставить как можно скорее</div>
+                    </div>
                     <span class="urgent-price">+10 смн</span>
                 </label>
                 <button class="btn" onclick="sendOrder()">Отправить заказ</button>
@@ -112,7 +115,10 @@
                 <textarea id="edit-comment" rows="2"></textarea>
                 <label class="urgent">
                     <input type="checkbox" id="edit-urgent">
-                    <span class="urgent-text">🚀 <b>СРОЧНО</b> — доставить как можно скорее</span>
+                    <div class="urgent-info">
+                        <div class="urgent-title">🚀 СРОЧНО</div>
+                        <div class="urgent-sub">доставить как можно скорее</div>
+                    </div>
                     <span class="urgent-price">+10 смн</span>
                 </label>
                 <button class="btn" onclick="saveEdit()">Сохранить</button>
