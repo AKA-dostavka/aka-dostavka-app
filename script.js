@@ -9,6 +9,7 @@ if (window.Telegram && window.Telegram.WebApp) {
 }
 
 let currentEditId = null;
+let currentFilter = 'all';
 
 function showScreen(name) {
     document.querySelectorAll('.screen').forEach(function(s) {
@@ -22,6 +23,7 @@ function showScreen(name) {
     if (name === 'orders') {
         renderOrders();
     }
+    updateOrdersCount();
 }
 
 function getOrders() {
@@ -32,6 +34,17 @@ function getOrders() {
 
 function saveOrders(orders) {
     localStorage.setItem('myOrders', JSON.stringify(orders));
+    updateOrdersCount();
+}
+
+function updateOrdersCount() {
+    const badge = document.getElementById('orders-count');
+    if (!badge) return;
+    const orders = getOrders();
+    const active = orders.filter(function(o) {
+        return o.status !== 'Доставлен' && o.status !== 'Отменён';
+    }).length;
+    badge.textContent = active > 0 ? active : '';
 }
 
 function escapeHtml(text) {
@@ -40,6 +53,16 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+function setFilter(f) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(function(b) {
+        b.classList.remove('active');
+    });
+    document.querySelector('.filter-btn[data-filter="' + f + '"]').classList.add('active');
+    renderOrders();
+}
+
+// ===== СОЗДАНИЕ ЗАКАЗА =====
 function sendOrder() {
     const address = document.getElementById('address').value.trim();
     const phone = document.getElementById('phone').value.trim();
@@ -82,6 +105,7 @@ function sendOrder() {
     showScreen('main');
 }
 
+// ===== ПАКЕТ =====
 function parseBulkOrders(text) {
     const lines = text.split('\n');
     const parsed = [];
@@ -164,14 +188,32 @@ function sendBatchOrders() {
     showScreen('main');
 }
 
+// ===== СПИСОК =====
+function statusBadge(status) {
+    if (status === 'Новый') return '<span class="badge-status new">🟡 Новый</span>';
+    if (status === 'Принят') return '<span class="badge-status accepted">🔵 Принят</span>';
+    if (status === 'Доставлен') return '<span class="badge-status done">🟢 Доставлен</span>';
+    if (status === 'Отменён') return '<span class="badge-status cancelled">🔴 Отменён</span>';
+    return '<span class="badge-status new">' + escapeHtml(status) + '</span>';
+}
+
 function renderOrders() {
     const container = document.getElementById('orders-list');
     if (!container) return;
 
-    const orders = getOrders();
+    const all = getOrders();
+    let orders = all;
+
+    if (currentFilter === 'new') {
+        orders = all.filter(function(o) {
+            return o.status !== 'Доставлен' && o.status !== 'Отменён';
+        });
+    } else if (currentFilter === 'done') {
+        orders = all.filter(function(o) { return o.status === 'Доставлен'; });
+    }
 
     if (orders.length === 0) {
-        container.innerHTML = '<div class="stub"><div class="stub-icon">📋</div><div class="stub-text">Заказов пока нет</div><div class="stub-hint">Создайте первый через «⚡ Быстрый заказ»</div></div>';
+        container.innerHTML = '<div class="stub"><div class="stub-icon">📋</div><div class="stub-text">Заказов нет</div><div class="stub-hint">Создайте первый через «⚡ Быстрый заказ»</div></div>';
         return;
     }
 
@@ -179,23 +221,71 @@ function renderOrders() {
     for (let i = 0; i < orders.length; i++) {
         const o = orders[i];
         const mark = o.urgent ? ' <span class="badge-urgent">🚀 СРОЧНО</span>' : '';
-        html += '<div class="order-card">';
+        let cls = 'order-card';
+        if (o.status === 'Доставлен') cls += ' status-done';
+        if (o.status === 'Отменён') cls += ' status-cancelled';
+
+        html += '<div class="' + cls + '">';
         html += '<div class="order-head">📍 ' + escapeHtml(o.address) + mark + '</div>';
         html += '<div class="order-row">📞 ' + escapeHtml(o.phone) + '</div>';
         html += '<div class="order-row">💰 ' + escapeHtml(o.amount) + ' смн</div>';
         if (o.comment) {
             html += '<div class="order-row">📝 ' + escapeHtml(o.comment) + '</div>';
         }
-        html += '<div class="order-foot">' + escapeHtml(o.created) + ' • ' + escapeHtml(o.status) + '</div>';
+        html += '<div class="order-foot"><span>' + escapeHtml(o.created) + '</span>' + statusBadge(o.status) + '</div>';
+
+        // Кнопки действий
         html += '<div class="order-actions">';
-        html += '<button class="btn-edit" onclick="editOrder(' + o.id + ')">✏️ Изменить</button>';
-        html += '<button class="btn-cancel" onclick="cancelOrder(' + o.id + ')">❌ Отменить</button>';
+        if (o.status === 'Новый') {
+            html += '<button class="btn-edit" onclick="editOrder(' + o.id + ')">✏️ Изменить</button>';
+            html += '<button class="btn-accept" onclick="acceptOrder(' + o.id + ')">✅ Принять</button>';
+            html += '<button class="btn-cancel" onclick="cancelOrder(' + o.id + ')">❌ Отменить</button>';
+        } else if (o.status === 'Принят') {
+            html += '<button class="btn-done" onclick="completeOrder(' + o.id + ')">✅ Доставлен</button>';
+            html += '<button class="btn-cancel" onclick="cancelOrder(' + o.id + ')">❌ Отменить</button>';
+        } else if (o.status === 'Доставлен') {
+            html += '<button class="btn-restore" onclick="restoreOrder(' + o.id + ')">🔄 Вернуть в работу</button>';
+        } else if (o.status === 'Отменён') {
+            html += '<button class="btn-restore" onclick="restoreOrder(' + o.id + ')">🔄 Восстановить</button>';
+        }
         html += '</div>';
         html += '</div>';
     }
     container.innerHTML = html;
 }
 
+// ===== СТАТУСЫ =====
+function updateStatus(id, newStatus) {
+    const orders = getOrders();
+    for (let i = 0; i < orders.length; i++) {
+        if (orders[i].id === id) {
+            orders[i].status = newStatus;
+            orders[i].updated = new Date().toLocaleString('ru-RU');
+            break;
+        }
+    }
+    saveOrders(orders);
+    renderOrders();
+}
+
+function acceptOrder(id) {
+    updateStatus(id, 'Принят');
+}
+
+function completeOrder(id) {
+    updateStatus(id, 'Доставлен');
+}
+
+function restoreOrder(id) {
+    updateStatus(id, 'Новый');
+}
+
+function cancelOrder(id) {
+    if (!confirm('Отменить заказ?')) return;
+    updateStatus(id, 'Отменён');
+}
+
+// ===== РЕДАКТИРОВАНИЕ =====
 function editOrder(id) {
     const orders = getOrders();
     const order = orders.find(function(o) { return o.id === id; });
@@ -241,15 +331,8 @@ function saveEdit() {
     showScreen('orders');
 }
 
-function cancelOrder(id) {
-    if (!confirm('Отменить заказ? Это действие нельзя вернуть.')) return;
-
-    let orders = getOrders();
-    orders = orders.filter(function(o) { return o.id !== id; });
-    saveOrders(orders);
-    renderOrders();
-    alert('❌ Заказ отменён');
-}
+// ===== ИНИЦИАЛИЗАЦИЯ =====
+updateOrdersCount();
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
