@@ -45,3 +45,15 @@ function sendOrder() {
     }
 }
 // v2
+// Регистрация Service Worker (PWA)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/service-worker.js')
+            .then(function(reg) {
+                console.log('Service Worker зарегистрирован:', reg.scope);
+            })
+            .catch(function(err) {
+                console.log('Service Worker ошибка:', err);
+            });
+    });
+}
