@@ -62,13 +62,10 @@
                 <label>📝 Комментарий</label>
                 <textarea id="comment" rows="2" placeholder="Позвонить за 5 минут"></textarea>
                 <label class="urgent">
-                    <label class="urgent">
-    <input type="checkbox" id="urgent">
-    <span class="urgent-text">
-        🚀 <b>СРОЧНО</b> — доставить как можно скорее
-    </span>
-    <span class="urgent-price">+10 смн</span>
-                    </label>
+                    <input type="checkbox" id="urgent">
+                    <span class="urgent-text">🚀 <b>СРОЧНО</b> — доставить как можно скорее</span>
+                    <span class="urgent-price">+10 смн</span>
+                </label>
                 <button class="btn" onclick="sendOrder()">Отправить заказ</button>
             </div>
         </div>
@@ -86,34 +83,40 @@
 
 Заказ 2 срочно ( к оплате 150 смн )
 Адрес и номер: 911111111 Айни 5</pre>
-                <textarea id="batch-text" rows="10" placeholder="Заказ 1 ( к оплате 200 смн )&#10;Адрес и номер: 900000000 ул. Рудаки 25&#10;&#10;Заказ 2 ( к оплате 150 смн )&#10;Адрес и номер: 911111111 Айни 5"></textarea>
+                <textarea id="batch-text" rows="10" placeholder="Вставьте заказы сюда"></textarea>
                 <button class="btn" onclick="sendBatchOrders()">Отправить всё</button>
             </div>
         </div>
 
+        <div id="screen-orders" class="screen">
+            <div class="top-bar">
+                <button class="back" onclick="showScreen('main')">⬅</button>
+                <div class="title">Мои заказы</div>
+            </div>
+            <div class="content" id="orders-list"></div>
+        </div>
+
         <div id="screen-edit" class="screen">
-    <div class="top-bar">
-        <button class="back" onclick="showScreen('orders')">⬅</button>
-        <div class="title">Изменить заказ</div>
-    </div>
-    <div class="content">
-        <label>📍 Адрес доставки</label>
-        <input type="text" id="edit-address">
-        <label>📞 Телефон клиента</label>
-        <input type="tel" id="edit-phone">
-        <label>💰 Сумма заказа (смн)</label>
-        <input type="number" id="edit-amount">
-        <label>📝 Комментарий</label>
-        <textarea id="edit-comment" rows="2"></textarea>
-        <label class="urgent">
-            <input type="checkbox" id="edit-urgent">
-            <span class="urgent-text">
-                🚀 <b>СРОЧНО</b> — доставить как можно скорее
-            </span>
-            <span class="urgent-price">+10 смн</span>
-        </label>
-        <button class="btn" onclick="saveEdit()">Сохранить</button>
-    </div>
+            <div class="top-bar">
+                <button class="back" onclick="showScreen('orders')">⬅</button>
+                <div class="title">Изменить заказ</div>
+            </div>
+            <div class="content">
+                <label>📍 Адрес доставки</label>
+                <input type="text" id="edit-address">
+                <label>📞 Телефон клиента</label>
+                <input type="tel" id="edit-phone">
+                <label>💰 Сумма заказа (смн)</label>
+                <input type="number" id="edit-amount">
+                <label>📝 Комментарий</label>
+                <textarea id="edit-comment" rows="2"></textarea>
+                <label class="urgent">
+                    <input type="checkbox" id="edit-urgent">
+                    <span class="urgent-text">🚀 <b>СРОЧНО</b> — доставить как можно скорее</span>
+                    <span class="urgent-price">+10 смн</span>
+                </label>
+                <button class="btn" onclick="saveEdit()">Сохранить</button>
+            </div>
         </div>
 
         <div id="screen-report" class="screen">
