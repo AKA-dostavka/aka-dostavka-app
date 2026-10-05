@@ -60,7 +60,6 @@ function setFilter(f) {
     renderOrders();
 }
 
-// ===== СОЗДАНИЕ =====
 function sendOrder() {
     const address = document.getElementById('address').value.trim();
     const phone = document.getElementById('phone').value.trim();
@@ -103,7 +102,6 @@ function sendOrder() {
     showScreen('main');
 }
 
-// ===== ПАКЕТ =====
 function parseBulkOrders(text) {
     const lines = text.split('\n');
     const parsed = [];
@@ -180,7 +178,6 @@ function sendBatchOrders() {
     showScreen('main');
 }
 
-// ===== СТАТУСЫ =====
 function statusBadge(status) {
     if (status === 'Новый') return '<span class="badge-status new">🟡 Новый</span>';
     if (status === 'Назначен курьеру') return '<span class="badge-status accepted">🔵 Назначен курьеру</span>';
@@ -234,7 +231,6 @@ function renderOrders() {
         }
         html += '<div class="order-foot"><span>' + escapeHtml(o.created) + '</span>' + statusBadge(o.status) + '</div>';
 
-        // Кнопки действий
         html += '<div class="order-actions">';
         html += '<button class="btn-edit" onclick="editOrder(' + o.id + ')">✏️ Изменить</button>';
         if (canCancel(o.status)) {
@@ -281,7 +277,6 @@ function restoreOrder(id) {
     renderOrders();
 }
 
-// ===== РЕДАКТИРОВАНИЕ =====
 function editOrder(id) {
     const orders = getOrders();
     const order = orders.find(function(o) { return o.id === id; });
@@ -327,13 +322,4 @@ function saveEdit() {
     showScreen('orders');
 }
 
-// ===== СТАРТ =====
 updateOrdersCount();
-
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/service-worker.js')
-            .then(function(reg) { console.log('SW:', reg.scope); })
-            .catch(function(err) { console.log('SW err:', err); });
-    });
-}
